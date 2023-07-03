@@ -6,7 +6,7 @@ library(lubridate) #for date extraction and manipulation
 library(ggthemes)
 library(tools) #for toTitleCase function (makes strings into propercase)
 
-excel_file_hwinfo = "C:/Users/Ryan/Coding Projects/Computer Experiment/Data/hwinfo_test.xlsx"
+excel_file_hwinfo = "C:/Users/Ryan/Coding Projects/Computer Benchmark/Data/hwinfo_test.xlsx"
 
 hwinfo_ow <- read_excel(excel_file_hwinfo, sheet = "hwinfo_ow")
 hwinfo_destiny <- read_excel(excel_file_hwinfo, sheet = "hwinfo_destiny")
@@ -57,7 +57,7 @@ df_list_hw <- lapply(df_list_hw, function(df) {
 
 #Reading in and manipulating frameview graphs 
 ```{r}
-excel_file_frameview = "C:/Users/Ryan/Coding Projects/Computer Experiment/Data/frameview_files.xlsx"
+excel_file_frameview = "C:/Users/Ryan/Coding Projects/Computer Benchmark/Data/frameview_files.xlsx"
 
 Frameview_GTAV <- read_excel(excel_file_frameview, sheet = "GTA5")
 Frametime_ow <- read_excel(excel_file_frameview, sheet = "Overwatch")
@@ -587,8 +587,8 @@ List_of_list <- list(fan_speed_list, power_plots, gpu_cl_plots, cpu_clk_plots, u
 #Just adding names to the above lists to make looping through them easier 
 names(List_of_list) <- c("fan_speed_list", "power_plots", "gpu_cl_plots", "cpu_clk_plots", "utilization_plots", "temperautre_plots", "frametime_plots", "temp_power_cpu_list", "temp_power_gpu_list")
 
-# Defining the path we want to initally save all of the graphs before we sort by game 
-path_name <- "C:/Users/Ryan/Coding Projects/Computer Experiment/unsorted game graphs"
+# Defining the path we want to initially save all of the graphs before we sort by game 
+path_name <- "C:/Users/Ryan/Coding Projects/Computer Benchmark/unsorted game graphs"
 
 # Looping through each list saved in List_of_list then getting the number of graphs saved in that specific list (format of numbers is 1,2,3,4, 1,2,3,4,5,1,2,3,4,5,ect through each list of graphs)
 #Then we extract the game name from each individual list to name the file later 
@@ -681,5 +681,5 @@ fps_bar
 
 ```{r eval=FALSE, include=FALSE}
 #save the FPS bar chart to a PNG file on the desktop
-ggsave(fps_bar, file = "C:/Users/Ryan/Coding Projects/Computer Experiment/Game Graphs/All_FPS_barchart.png")
+ggsave(fps_bar, file = "C:/Users/Ryan/Coding Projects/Computer Benchmark/Game Graphs/All_FPS_barchart.png")
 ```

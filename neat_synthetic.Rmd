@@ -4,7 +4,7 @@ library(readxl)
 library(lubridate) #for date extraction and manipulation
 library(ggthemes)
 
-excel_file_hwinfo = "C:/Users/Ryan/Coding Projects/Computer Experiment/Data/hwinfo_test.xlsx"
+excel_file_hwinfo = "C:/Users/Ryan/Coding Projects/Computer Benchmark/Data/hwinfo_test.xlsx"
 
 timespy <- read_excel(excel_file_hwinfo, sheet = "hwinfo_timespy")
 firestrike <- read_excel(excel_file_hwinfo, sheet = "hwinfo_firestrike_e")
@@ -535,7 +535,7 @@ List_of_list <- list(clock_gpu_list, clock_cpu_list, fan_speed_list, utilization
 names(List_of_list) <- c("clock_gpu_list", "clock_cpu_list", "fan_speed_list", "utilization_plots", "temp_power_gpu_list", "temp_power_cpu_list", "temperautre_plots", "power_plots")
 
 # Defining the path we want to initally save all of the graphs before we sort by game 
-path_name <- "C:/Users/Ryan/Coding Projects/Computer Experiment/unsorted synthetic graphs"
+path_name <- "C:/Users/Ryan/Coding Projects/Computer Benchmark/unsorted synthetic graphs"
 
 # Looping through each list saved in List_of_list then getting the number of graphs saved in that specific list (format of numbers is 1,2,3,4, 1,2,3,4,5,1,2,3,4,5,ect through each list of graphs)
 #Then we extract the game name from each individual list to name the file later 
