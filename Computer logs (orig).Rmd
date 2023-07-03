@@ -1,0 +1,582 @@
+---
+title: "Computer Experiment"
+author: "Ryan"
+date: "03/23/2023"
+output: word_document
+---
+########################### HWinfo64 ##############################################
+
+########## Gaming ##########
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(lubridate) #for date extraction and manipulation
+library(ggthemes)
+
+hwinfo_ow <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "hwinfo_timespy")
+
+#the -2 removes the last 2 observations in the data set which are just descriptors of the variables 
+headed <- head(hwinfo_ow, -2)
+
+#Converting all the variables in the dataset, expect for date, into numeric variables
+headed_num <- as.data.frame(lapply(headed[,-1], as.numeric))
+
+#imputing date variable back into the headed_num dataframe
+headed_num <- cbind(headed$`Date/Time`, headed_num)
+
+#Rename the date column we just added back above 
+names(headed_num)[names(headed_num) == "headed$`Date/Time`"] <- "DateTime"
+
+# Convert DateTime variable to POSIXct format
+headed_num$DateTime <- ymd_hms(headed_num$DateTime)
+
+# Convert DateTime variable to numeric representing seconds since initialization point
+headed_num$seconds <- as.numeric(headed_num$DateTime - min(headed_num$DateTime))
+
+#removing unimportant datasets
+rm(hwinfo_ow, headed)
+```
+
+
+```{r}
+#Getting the basic summary statistics for all of the relevant variables in the dataframe 
+head_sum <- headed_num %>% select(-DateTime, -seconds)
+
+#Applying the summary function to every variable in our modified head_sum dataframe
+summary <- lapply(head_sum, summary)
+
+#Getting the variable names from the summary list so that I can index into specific variable of interst 
+head_sum_names_list <- names(summary)
+
+summary[["GPU.Temperature...C."]]
+
+summary
+```
+
+
+#####this code works great but the varaibles need to be group by their units otherwise the boxplot looks horrible 
+
+```{r}
+#Trying to visualize the statistics summary above into boxplots, 
+
+data_long <- pivot_longer(head_sum, cols = head_sum_names_list, names_to = "variable")
+
+# Create a boxplot using ggplot2
+ggplot(data_long, aes(x = variable, y = value)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Multiple Groups",
+       x = "Group", y = "Value")
+
+```
+
+
+
+```{r}
+#conducting a t-test (difference in means) between the 2 variables i'm using to measure Cpu temps
+
+# Conduct the t-test CPU TEMP
+t_test_cpu <- t.test(headed_num$CPU.Die..average....C., headed_num$CPU..Tctl.Tdie....C.)
+t_test_cpu
+
+#t test beteen cpu and gpu power draw
+t_test_gpu <- t.test(headed_num$CPU.Package.Power..W., headed_num$GPU.PPT..W.)
+t_test_gpu
+
+#The first t-test is comparing the means of two variables: headed_num$CPU.Die..average....C. and headed_num$CPU..Tctl.Tdie....C.. The results indicate that there is a statistically significant difference between the means of these two variables (t = -4.4571, p < 0.001). The negative t-value indicates that the mean of headed_num$CPU.Die..average....C. is smaller than the mean of headed_num$CPU..Tctl.Tdie....C.. The 95% confidence interval (-3.568860, -1.369849) suggests that we can be 95% confident that the true difference between the means of these two variables falls within this range.
+
+#The second t-test is comparing the means of two different variables: headed_num$CPU.Package.Power..W. and headed_num$GPU.PPT..W.. The results indicate that there is a highly statistically significant difference between the means of these two variables (t = -33.836, p < 0.001). The negative t-value indicates that the mean of headed_num$CPU.Package.Power..W. is smaller than the mean of headed_num$GPU.PPT..W.. The 95% confidence interval (-59.55398, -52.92840) suggests that we can be 95% confident that the true difference between the means of these two variables falls within this range.
+```
+
+
+```{r}
+headed_num %>% ggplot(aes(seconds, GPU.Temperature...C.)) +
+  geom_line(aes(y = GPU.Temperature...C., color = "GPU.Temperature...C.")) +
+  #geom_smooth(aes(y = CPU.Die..average....C., color = "CPU.Die"), se = FALSE, linetype = "dashed") +
+  
+  geom_line(aes(y = CPU..Tctl.Tdie....C., color = "CPU Tctl Tdie")) +
+  #geom_smooth(aes(y = CPU..Tctl.Tdie....C., color = "CPU.Tctl.Tdie"), se = FALSE, linetype = "dashed") +
+  
+  labs(
+    y = "Temperature (*C)",
+    x = "Time - Minute:Seconds", 
+    title = "Comparing different measures of CPU Temp over time"
+  ) +
+  
+  scale_x_continuous(
+    breaks = seq(0, max(headed_num$seconds), by = 20),
+    
+    #sprintf() is a function in R that allows you to format strings with placeholders for variables. It takes two arguments: the format string and the variables to substitute into the string. The format string is a character string that includes placeholders for the variables.
+    
+    labels = function(x) sprintf("%02d:%02d", floor(x/60), x %% 60)
+  ) +
+  
+  #scale_y_continuous(breaks = seq(40, 80, by = 5),
+    #minor_breaks = seq(40, 80, by = 2.5),
+    #limits = c(40, 80)) +
+  
+  scale_color_manual(name = "CPU Temp Measures",
+                     values = c("GPU.Temperature...C." = "red", "CPU Tctl Tdie" = "blue")) +
+  
+  theme_bw() +
+  
+  theme(panel.grid.minor.y = element_line(color = "gray", linetype = "dotted"),
+       legend.position = c(0.85, 0.88),
+       legend.title = element_text(size = 10.5), 
+       legend.text = element_text(size = 10),
+       legend.background = element_rect(fill = "grey99", color = "black", size = 0.5)) #makes a box around the legend and adds a fill! 
+```
+
+
+```{r}
+headed_num %>% ggplot(aes(seconds)) +
+  geom_line(aes(y = CPU.Package.Power..W., color = "CPU")) +
+  
+  geom_line(aes(y = GPU.PPT..W., color = "GPU")) +
+  
+  
+  labs(
+    y = "Power Draw in Watts",
+    x = "Time - (Minute:Seconds)", 
+    title = "Comparing Power Consumption of CPU and GPU Over Time"
+  ) +
+  
+  scale_y_continuous(breaks = seq(0, 300, by = 50),
+                     minor_breaks = seq(0, 300, by = 25),
+                     limits = c(0, 300)) +
+  
+  scale_x_continuous(
+    breaks = seq(0, max(headed_num$seconds), by = 10),
+    
+    #sprintf() is a function in R that allows you to format strings with placeholders for variables. It takes two arguments: the format string and the variables to substitute into the string. The format string is a character string that includes placeholders for the variables.
+    
+    labels = function(x) sprintf("%2d:%02d", floor(x/60), x %% 60)
+  ) +
+  
+  scale_color_manual(name = "Component", values = c("CPU" = "red", "GPU" = "blue")) +
+  theme_clean() +
+  
+  theme(
+       panel.grid.minor.y = element_line(color = "gray", linetype = "dotted"),
+       legend.position = c(0.80, 0.92),
+       legend.direction = "horizontal",
+       legend.title = element_text(size = 10.5), 
+       legend.text = element_text(size = 10),
+       legend.background = element_rect(fill = "grey99", color = "black", size = 0.5)) #makes a box around the legend and adds a fill! 
+```
+
+
+########## Synthetic ##########
+
+###### CPU ######
+```{r}
+library(tidyverse)
+library(readxl)
+library(lubridate) #for date extraction and manipulation
+library(ggthemes)
+
+hwinfo_cinebench <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "hwinfo_cinebench")
+
+#the -2 removes the last 2 observations in the data set which are just descriptors of the variables 
+headed <- head(hwinfo_cinebench, -2)
+
+#Converting all the variables in the dataset, expect for date, into numeric variables
+headed_num <- as.data.frame(lapply(headed[,-1], as.numeric))
+
+#imputing date variable back into the headed_num dataframe
+headed_num <- cbind(headed$`Date/Time`, headed_num)
+
+#Rename the date column we just added back above 
+names(headed_num)[names(headed_num) == "headed$`Date/Time`"] <- "DateTime"
+
+# Convert DateTime variable to POSIXct format
+headed_num$DateTime <- ymd_hms(headed_num$DateTime)
+
+# Convert DateTime variable to numeric representing seconds since initialization point
+headed_num$seconds <- as.numeric(headed_num$DateTime - min(headed_num$DateTime))
+
+#removing unimportant datasets
+rm(hwinfo_cinebench, headed)
+```
+
+
+```{r}
+#Getting the basic summary statistics for all of the relevant variables in the dataframe 
+head_sum <- headed_num %>% select(-DateTime, -seconds)
+
+#Applying the summary function to every variable in our modified head_sum dataframe
+summary <- lapply(head_sum, summary)
+
+#Getting the variable names from the summary list so that I can index into specific variable of interst 
+head_sum_names_list <- names(summary)
+
+summary[["GPU.Temperature...C."]]
+
+summary
+```
+
+
+```{r}
+#Temperature and power consumption graph 
+
+headed_num %>% ggplot(aes(seconds)) +
+  geom_line(aes(y = CPU.Package.Power..W., color = "CPU.Package.Power..W.")) +
+  geom_line(aes(y = CPU..Tctl.Tdie....C., color = "CPU Tctl Tdie")) +
+  
+  geom_text(aes(label = "Cinebench Score: 19406"), x = 54, y = 50) +
+  
+  labs(
+    x = "Time - Minute:Seconds", 
+    title = "Comparing different measures of CPU Temp over time"
+  ) +
+  
+  scale_x_continuous(
+    breaks = seq(0, max(headed_num$seconds), by = 20),
+    
+    #sprintf() is a function in R that allows you to format strings with placeholders for variables. It takes two arguments: the format string and the variables to substitute into the string. The format string is a character string that includes placeholders for the variables.
+    
+    labels = function(x) sprintf("%02d:%02d", floor(x/60), x %% 60)
+  ) +
+  
+  scale_y_continuous(name = "Watts" ,
+    sec.axis = sec_axis(~., name =  "Temperature (*C)")) +
+    #breaks = seq(40, 80, by = 5),
+    #minor_breaks = seq(40, 80, by = 2.5),
+    #limits = c(40, 80)) +
+  
+  scale_color_manual(name = "CPU Temp Measures",
+                     values = c("CPU Tctl Tdie" = "red", "CPU.Package.Power..W." = "blue")) +
+  
+  theme_bw() +
+  
+  theme(panel.grid.minor.y = element_line(color = "gray", linetype = "dotted"),
+       legend.position = c(0.65, 0.40),
+       legend.title = element_text(size = 10.5), 
+       legend.text = element_text(size = 10),
+       legend.background = element_rect(fill = "grey99", color = "black", size = 0.5)) + #makes a box around the legend and adds a fill! 
+  
+  guides(fill = guide_legend(reverse = TRUE)) 
+
+#The "cairo = FALSE" parameter should get rid of the anti aliasing on the cinebench text
+#ggsave(filename = "my_plot.png", dpi = 300, cairo = FALSE)
+```
+
+
+```{r}
+#Clock Speed graph
+names(headed_num)
+
+headed_num %>% ggplot(aes(seconds)) +
+  geom_line(aes(y = Core.Clocks..avg...MHz.)) +
+  geom_text(aes(label = "Cinebench Score: 19406"), x = 75, y = 5400) +
+  
+  labs(
+    y = "CPU Speed (MHz)", 
+    x = "Time - (Minute:Seconds)", 
+    title = "CPU clock Speed During Cinebench Run"
+  ) +
+  
+  scale_x_continuous(
+    breaks = seq(0, max(headed_num$seconds), by = 20),
+    
+    #sprintf() is a function in R that allows you to format strings with placeholders for variables. It takes two arguments: the format string and the variables to substitute into the string. The format string is a character string that includes placeholders for the variables.
+    labels = function(x) sprintf("%02d:%02d", floor(x/60), x %% 60)
+  ) +
+  
+  scale_y_continuous(
+    breaks = seq(3500, 5500, by = 250),
+    limits = c(3500, 5500),
+    minor_breaks = seq(3500, 5500, by = 125)) +
+  
+  #scale_color_manual(name = "Measures",
+                     #value = "Core.Clocks..avg...MHz." = "blue") +
+  
+  theme_clean() +
+  
+  theme(panel.grid.minor.y = element_line(color = "gray", linetype = "dotted"),
+       legend.position = c(0.65, 0.40),
+       legend.title = element_text(size = 10.5), 
+       legend.text = element_text(size = 10),
+       legend.background = element_rect(fill = "grey99", color = "black", size = 0.5))  #makes a box around the legend and adds a fill! 
+
+#The "cairo = FALSE" parameter should get rid of the anti aliasing on the cinebench text
+#ggsave(filename = "my_plot.png", dpi = 300, cairo = FALSE)
+```
+
+
+```{r}
+#fan speed?
+```
+
+
+
+###### GPU ######
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(lubridate) #for date extraction and manipulation
+library(ggthemes)
+
+hwinfo_cinebench <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "hwinfo_cinebench")
+
+#the -2 removes the last 2 observations in the data set which are just descriptors of the variables 
+headed <- head(hwinfo_cinebench, -2)
+
+#Converting all the variables in the dataset, expect for date, into numeric variables
+headed_num <- as.data.frame(lapply(headed[,-1], as.numeric))
+
+#imputing date variable back into the headed_num dataframe
+headed_num <- cbind(headed$`Date/Time`, headed_num)
+
+#Rename the date column we just added back above 
+names(headed_num)[names(headed_num) == "headed$`Date/Time`"] <- "DateTime"
+
+# Convert DateTime variable to POSIXct format
+headed_num$DateTime <- ymd_hms(headed_num$DateTime)
+
+# Convert DateTime variable to numeric representing seconds since initialization point
+headed_num$seconds <- as.numeric(headed_num$DateTime - min(headed_num$DateTime))
+
+#removing unimportant datasets
+rm(hwinfo_cinebench, headed)
+```
+
+
+```{r}
+#Getting the basic summary statistics for all of the relevant variables in the dataframe 
+head_sum <- headed_num %>% select(-DateTime, -seconds)
+
+#Applying the summary function to every variable in our modified head_sum dataframe
+summary <- lapply(head_sum, summary)
+
+#Getting the variable names from the summary list so that I can index into specific variable of interst 
+head_sum_names_list <- names(summary)
+
+summary[["GPU.Temperature...C."]]
+
+summary
+```
+
+
+```{r}
+#Temperature and power consumption graph 
+names(headed_num)
+
+headed_num %>% ggplot(aes(seconds, CPU.Package.Power..W.)) +
+  geom_line(aes(y = CPU.Package.Power..W., color = "CPU.Package.Power..W.")) +
+  geom_line(aes(y = CPU..Tctl.Tdie....C., color = "CPU Tctl Tdie")) +
+  
+  labs(
+    y = "Temperature (*C)",
+    x = "Time - Minute:Seconds", 
+    title = "Comparing different measures of CPU Temp over time"
+  ) +
+  
+  scale_x_continuous(
+    breaks = seq(0, max(headed_num$seconds), by = 20),
+    
+    #sprintf() is a function in R that allows you to format strings with placeholders for variables. It takes two arguments: the format string and the variables to substitute into the string. The format string is a character string that includes placeholders for the variables.
+    
+    labels = function(x) sprintf("%02d:%02d", floor(x/60), x %% 60)
+  ) +
+  
+  scale_y_continuous(name = "Watts" ,
+    sec.axis = sec_axis(~., name =  "Temperature (*C)")) +
+    #breaks = seq(40, 80, by = 5),
+    #minor_breaks = seq(40, 80, by = 2.5),
+    #limits = c(40, 80)) +
+  
+  scale_color_manual(name = "CPU Temp Measures",
+                     values = c("CPU Tctl Tdie" = "red", "CPU.Package.Power..W." = "blue")) +
+  
+  theme_bw() +
+  
+  theme(panel.grid.minor.y = element_line(color = "gray", linetype = "dotted"),
+       legend.position = c(0.65, 0.40),
+       legend.title = element_text(size = 10.5), 
+       legend.text = element_text(size = 10),
+       legend.background = element_rect(fill = "grey99", color = "black", size = 0.5)) + #makes a box around the legend and adds a fill! 
+  
+  guides(fill = guide_legend(reverse = TRUE)) 
+```
+
+
+
+#Useful code for the future:
+scale_x_datetime(date_breaks = "5 sec", date_labels = "%M:%S") - formats datetime in a specific way within ggplot
+scale_x_discrete(breaks = c()) - eliminates x axis labels 
+
+
+########################### FrameView ##############################################
+
+
+########## Synthetic ##########
+
+#Frametime plots + other useful statistics from GPU and CPU (no GPU power and CPU voltage numbers though)
+
+```{r}
+Frametime_GTAV <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "frameview_gtav")
+Frametime_ow <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "frameview_ow")
+Frametime_R6 <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "frametime_r6")
+Frameview_Apex <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "frameview_apex")
+Frameview_Destiny <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "frameview_destiny")
+
+he <- Frametime_R6 %>% select(TimeInSeconds, MsBetweenPresents, MsBetweenDisplayChange, `GPU1Clk(MHz)`, `GPU1Util(%)`, `GPU1Temp(C)`, `AMDPwr(W) (API)`, `CPUClk(MHz)`,	`CPUUtil(%)`, `CPU Package Temp(C)`, `CPU Package Power(W)`)
+
+he$Seconds <- as.numeric(he$TimeInSeconds - min(he$TimeInSeconds))
+
+#Way to thin out the observations in my dataset, although it makes no difference at large time intervals, once we zoom in on a specific time thinning out the data helps to smooth the time series graph and avoids it being so jagged  
+#This specific code reports values of variables 3 times a second 
+df_subset <- he[seq(1, nrow(he), by = 50), ]
+```
+
+#Frametime Graph - need to be careful plotting frametimes because more polls per second may check more issues
+
+```{r}
+
+he %>% ggplot(aes(Seconds, MsBetweenPresents)) + 
+  geom_line(color = "blue") +
+  labs(
+    y = "Frametime",
+    title = "Frametimes"
+  ) +
+  
+  #scale_x_continuous(breaks = seq(0, 600, by = 100), 
+                     #limits = c(0, 600),
+                     #minor_breaks = seq(0, 600, by = 50)) +
+  
+  theme_bw()
+
+
+#subsetted data doesn't catch the spikes in frame time that lead to bad performance that the original dataset catches 
+#df_subset %>% ggplot(aes(Seconds, MsBetweenPresents)) + geom_line() #+ #scale_x_continuous(breaks = seq(0, 30, by = 10), limits = c(0, 30)) 
+```
+
+
+#graphing specific varaibles over time from the FrameView dataset 
+```{r}
+names(df_subset)
+
+df_subset %>% ggplot(aes(Seconds, `GPU1Temp(C)`)) +
+  geom_line() +
+  
+  labs(
+    title = "CPU Power Consumption Over Time",
+    x = "Time - Minute:Seconds"
+  ) +
+  
+  scale_x_continuous(
+    limits = c(0, 90),
+    
+    #sprintf() is a function in R that allows you to format strings with placeholders for variables. It takes two arguments: the format string and the variables to substitute into the string. The format string is a character string that includes placeholders for the variables.
+    
+    labels = function(x) sprintf("%02d:%02d", floor(x/60), x %% 60)
+  ) +
+
+   scale_y_continuous(breaks = seq(0,60, by = 15),
+                     limits = c(0,60)) +
+  
+  theme_bw() 
+  
+```
+
+
+#Code to animate a line graph to plot over time
+```{r eval=FALSE, include=FALSE}
+library(ggplot2)
+library(gganimate)
+
+# Create data for animation
+anim_data <- data.frame(
+  Seconds = seq(0, 600, length.out = 601),
+  MsBetweenPresents = rnorm(601, mean = 16.67, sd = 3),
+  frame = seq(1, 601)
+)
+
+# Create base ggplot object
+base_plot <- ggplot(anim_data, aes(Seconds, MsBetweenPresents)) + 
+  geom_line(color = "blue") +
+  labs(
+    y = "Frametime",
+    title = "Frametimes"
+  ) +
+  scale_x_continuous(breaks = seq(0, 600, by = 100), 
+                     limits = c(0, 600),
+                     minor_breaks = seq(0, 600, by = 50)) +
+  theme_bw()
+
+# Add animation to plot
+animated_plot <- base_plot + 
+  transition_reveal(frame) +
+  view_follow(fixed_x = TRUE)
+
+# Render animation
+animate(animated_plot)
+
+library(magick)
+
+# Define the file names and ordering
+file_names <- paste0("gganim_plot", sprintf("%04d", 1:100), ".png")
+
+# Read in the pictures
+imgs <- image_read(file_names)
+
+# Combine the pictures into an animated GIF
+animation <- image_animate(imgs, fps = 10)
+
+# Save the animation to a file
+image_write(animation, "animation.gif")
+```
+
+
+
+########## Gaming ##########
+ 
+
+#Averge FPS, 1%, and .1% lows for game tests 
+
+```{r}
+#Data Wrangling 
+
+summary_fps <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "summary")
+
+#contains columns I might find important later but don't rn like `Min FPS`, `Max FPS`
+summary_fps_o <- summary_fps %>% select(Application, `Avg FPS`, `1% Low FPS`, `0.1% Low FPS`, `Min FPS`, `Max FPS`)
+
+summary_fps <- summary_fps %>% select(Application, `Avg FPS`, `1% Low FPS`, `0.1% Low FPS`)
+
+#code to strip the .exe from the application variable so that it just displays the game name 
+pattern <- "\\.exe$"
+
+summary_fps$Application <- str_replace(summary_fps$Application, pattern, "")
+
+hehe <- pivot_longer(summary_fps, cols = c("Avg FPS", "1% Low FPS", "0.1% Low FPS"), names_to = "fps_type", values_to = "fps")
+
+#changing the format of the newly created FPS column so that it only displays out to 1 decimal point string to display all numbers 
+hehe$fps <- round(hehe$fps, digits = 1)
+```
+
+
+```{r}
+# Plot horizontal bar chart for all selected games 
+
+hehe %>% ggplot(aes(x = fps, y = Application, fill = fps_type)) +
+  geom_text(aes(label = fps), hjust = -0.1, position = position_dodge(width = 1)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  
+  labs(
+    x = "FPS", 
+    y = "Game", 
+    fill = "",
+    title = "Gaming Benchmarks March 2023",
+    subtitle = "See spec sheet for specific computer configuration") +
+  
+  scale_fill_manual(values = c("Avg FPS" = "darkblue", "1% Low FPS" = "maroon", "0.1% Low FPS" = "yellow")) +
+  
+  #scale_x_continuous(breaks = seq(0, 200, by = 20),
+    #limits = c(0, 200)) +
+  #Reversing the legend does work in this case, but like in the KDL study I got around this by manually defining the factor levels for each variable 
+  guides(fill = guide_legend(reverse = TRUE)) +
+  theme_bw()
+```
