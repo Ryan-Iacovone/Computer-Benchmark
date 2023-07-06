@@ -1,0 +1,13 @@
+Bios version: BIOS Version/Date	American Megatrends International, LLC. F5a, 3/22/2023
+
+Windows version: 10.0.19045 Build 19045
+
+AMD Radeon Driver: 23.5.2 Released 5/23/2023
+
+RAM settings: 32 GBs at 6000 MT/s using XMP 
+
+CPU settings: 5.4 MHz with 1.175 Volts for CPU VDDCR_VDD Voltage 
+
+*All benchmarks were tested with 2 monitor setup where spotify/twitch was open on the second monitor to simulate real world use of how 
+I would actually game/use my computer
+
