@@ -8,13 +8,14 @@ output: word_document
 
 ########## Gaming ##########
 
+
 ```{r}
 library(tidyverse)
 library(readxl)
 library(lubridate) #for date extraction and manipulation
 library(ggthemes)
 
-hwinfo_ow <- read_excel("C:/Users/Ryan/Coding Projects/Computer Experiment/Test Com Data.xlsx", sheet = "hwinfo_timespy")
+hwinfo_ow <- read_excel(path = "Data/hwinfo_test.xlsx")
 
 #the -2 removes the last 2 observations in the data set which are just descriptors of the variables 
 headed <- head(hwinfo_ow, -2)
