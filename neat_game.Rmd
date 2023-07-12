@@ -646,13 +646,22 @@ summary_fps_long <- summary_fps_long %>%
 
 #changing the format of the newly created FPS column so that it only displays out to 1 decimal point string to display all numbers 
 summary_fps_long$fps <- round(summary_fps_long$fps, digits = 1)
+
+
+############# NOT AS EASY TO REODER A GROUPED BAR CHART AS IT IS A BOXPLOT ############# 
+
+#Reordering the dataset to display by descending order in the box plot
+
+#group_ordered <- with(summary_fps_long, reorder(fps, desc('AVG FPS'), mean))
+
+#boxplot_circ_day$branch <- factor(boxplot_circ_day$branch, levels = levels(group_ordered))
 ```
 
 
 ```{r}
 # Plot horizontal bar chart for all selected games 
 
-fps_bar <- summary_fps_long %>% ggplot(aes(x =  fps, y = Application, fill = fps_type)) +
+fps_bar <- summary_fps_long %>% ggplot(aes(x = fps , y = Application, fill = fps_type)) +
   geom_text(aes(label = fps), hjust = -0.1, position = position_dodge(width = 1)) +
   geom_bar(stat = "identity", position = "dodge") +
   
@@ -676,6 +685,8 @@ fps_bar <- summary_fps_long %>% ggplot(aes(x =  fps, y = Application, fill = fps
 
 fps_bar
 ```
+
+
 
 
 
