@@ -68,7 +68,7 @@ power <- ggplot(df_list[[df_name]], aes(seconds)) +
     #Adding the average measure into the graph 
   annotate("text", x = -Inf, y = Inf,
        label = paste0("Avg CPU Power: ", round(mean(df_list[[df_name]]$CPU.Package.Power..W.), 1), " W", "\n",
-                      "Avg GPU Temp: ", round(mean(df_list[[df_name]]$GPU.PPT..W.), 1), " W", "\n"),
+                      "Avg GPU Power: ", round(mean(df_list[[df_name]]$GPU.PPT..W.), 1), " W", "\n"),
        size = 2.5, color = "black", hjust = -1.2, vjust = 1.1) +
     
     labs(
