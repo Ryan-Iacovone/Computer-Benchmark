@@ -1,2 +1,2 @@
 # Computer-Benchmark
- Combination analysis of my custom built PC using gaming and synthetic benchmarks
+ Analyzing the performance of my custom built PC using a variety of gaming and synthetic benchmarks.
