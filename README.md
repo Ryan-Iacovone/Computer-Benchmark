@@ -5,7 +5,7 @@ I measured several varaibles as I tested my computer (such as but not limited to
  
 I compiled all that data into line and bar graphs using ggplot2 in R. 
 
-
+"gtav", "overwatch", "r6", "apex", "destiny", "rocket_league", "battlefront", "halo", "fortnite", "cod"
 
 Once I had all the graphs, I used a python program to sort through all the outputed graphs into their relavent folders by game/synthetic benchmark. 
 
