@@ -16,3 +16,4 @@ The synthetic benchmarks I tested with are 3D Mark's Timespy and Fire Strike Ext
 For more on infomration on the configuration of my computer please see the document titled "Computer info -July 1 Tests.docx".  
 
 Once I made all the graphs, I used a python program to sort them into their relavent folders by game/synthetic benchmark name.  
+
