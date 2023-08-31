@@ -17,3 +17,4 @@ For more on infomration on the configuration of my computer please see the docum
 
 Once I made all the graphs, I used a python program to sort them into their relavent folders by game/synthetic benchmark name.  
 
+"Problems are opportunities in disguise." - Charles F. Kettering
