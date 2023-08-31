@@ -13,6 +13,6 @@ For all the varaibles above except Averge FPS, 1% low FPS, and .1% low FPS each 
 
 The synthetic benchmarks I tested with are 3D Mark's Timespy and Fire Strike Extreme, Heaven, and Cinebench R23. I tested the same varaibles with the synthetic benchmarks as I did with games excpect I did not measure frametime or any FPS measure. 
 
-For more on infomration on the setup of my computer please see the document titled "Computer info -July 1 Tests.docx".  
+For more on infomration on the configuration of my computer please see the document titled "Computer info -July 1 Tests.docx".  
 
 Once I made all the graphs, I used a python program to sort them into their relavent folders by game/synthetic benchmark name.  
