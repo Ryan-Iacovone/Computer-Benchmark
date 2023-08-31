@@ -9,8 +9,10 @@ I compiled all the data I collected into line and bar graphs using ggplot2 in R.
 
 My current test suit of games includes: GTAV, Overwatch, Rainbow Six Seige, Apex Legends, Destiny 2, Rocket League, Battlefront 2, Halo Infinite, Fortnite, and Call of Duty: Warzone. For each game I tested the following variables as I ran my benchmark:  Frametime, GPU and CPU temperature, GPU and CPU utilization, GPU and CPU clock speed, GPU and CPU power consumption, Fan speed for CPU & GPU coolers, fan speed for the case fans, and Averge FPS, 1% low FPS, and .1% low FPS. 
 
+For all the varaibles above except Averge FPS, 1% low FPS, and .1% low FPS each game was tested one time. For the Averge FPS, 1% low FPS, and .1% low FPS I tested each game three times and then averaged the results together to get a more accurate measure of real world FPS while playing games.  
+
 The synthetic benchmarks I tested with are 3D Mark's Timespy and Fire Strike Extreme, Heaven, and Cinebench R23. I tested the same varaibles with the synthetic benchmarks as I did with games excpect I did not measure frametime or any FPS measure. 
 
-For more on my testing methodologies please see the document titled "Computer info -July 1 Tests.docx".  
+For more on infomration on the setup of my computer please see the document titled "Computer info -July 1 Tests.docx".  
 
 Once I made all the graphs, I used a python program to sort them into their relavent folders by game/synthetic benchmark name.  
