@@ -101,13 +101,12 @@ rm(df_list)
 ```{r}
 #("gtav", "overwatch", "r6", "apex", "destiny", "rocket_league", "battlefront", "halo", "fortnite", "cod")
 
-game <- "overwatch"
+game <- "fortnite"
 ```
 
 
 #Frametime Graph - need to be careful plotting frametimes because more polls per second may check more issues
 ```{r}
-
 frametime_plots <- list()
 
 for (df_name in names(dfs_all)) {
@@ -216,7 +215,8 @@ utilization <- ggplot(dfs_subset[[df_name]], aes(seconds)) +
       title = paste0("Comparing utilization of CPU and GPU Over Time in ", df_name)
     ) +
     
-    scale_y_continuous(breaks = seq(0, 100, by = 20),
+    scale_y_continuous(labels = scales::percent_format(scale = 1),
+                       breaks = seq(0, 100, by = 20),
                        limits = c(0, 100)) +
     
     scale_x_continuous(
