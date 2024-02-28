@@ -101,7 +101,7 @@ rm(df_list)
 ```{r}
 #("gtav", "overwatch", "r6", "apex", "destiny", "rocket_league", "battlefront", "halo", "fortnite", "cod")
 
-game <- "fortnite"
+game <- "overwatch"
 ```
 
 
@@ -158,7 +158,7 @@ temp <- ggplot(dfs_subset[[df_name]], aes(seconds)) +
     labs(
       y = "Temperature (*C)",
       x = "Time - Minute:Seconds", 
-      title = paste0("Comparing different measures of CPU Temp over time in ", toTitleCase(df_name))
+      title = paste0("CPU & GPU Temp Over Time in ", toTitleCase(df_name))
     ) +
     
     scale_x_continuous(
@@ -212,7 +212,7 @@ utilization <- ggplot(dfs_subset[[df_name]], aes(seconds)) +
     labs(
       y = "Percent Utilized",
       x = "Time - (Minute:Seconds)", 
-      title = paste0("Comparing utilization of CPU and GPU Over Time in ", df_name)
+      title = paste0("CPU & GPU Utilization Over Time in ", toTitleCase(df_name))
     ) +
     
     scale_y_continuous(labels = scales::percent_format(scale = 1),
@@ -257,7 +257,7 @@ CPU_cl <- ggplot(dfs_subset[[df_name]],aes(seconds)) +
     labs(
       y = "CPU Speed (MHz)", 
       x = "Time - (Minute:Seconds)", 
-      title = paste0("CPU clock Speed During game Run in ", df_name)
+      title = paste0("CPU clock Speed During game Run in ", toTitleCase(df_name))
     ) +
   
     #Adding the average measure into the graph 
@@ -307,7 +307,7 @@ GPU_cl <- ggplot(dfs_subset[[df_name]], aes(seconds)) +
     labs(
       y = "GPU Clock Speed (MHz)", 
       x = "Time - (Minute:Seconds)", 
-      title = paste0("GPU clock Speed During game Run in ", df_name)
+      title = paste0("GPU clock Speed During game Run in ", toTitleCase(df_name))
     ) +
   
     #Adding the average measure into the graph 
@@ -369,7 +369,7 @@ power <- ggplot(df_list_hw[[df_name]], aes(seconds)) +
   labs(
       y = "Power Draw (Watts)",
       x = "Time - (Minute:Seconds)", 
-      title = paste0("Power Consumption of CPU and GPU Over Time in ", df_name)
+      title = paste0("CPU & GPU Power Consumption Over Time in ", toTitleCase(df_name))
     ) +
     
     scale_y_continuous(breaks = seq(0, 300, by = 50),
@@ -425,7 +425,7 @@ fan_speed <- ggplot(df_list_hw[[df_name]], aes(seconds)) +
     labs(
       y = "Fan speed (RPM)",
       x = "Time - (Minute:Seconds)", 
-      title = paste0("Fan Speed Over Time in ", df_name)
+      title = paste0("Fan Speed Over Time in ", toTitleCase(df_name))
     ) +
     
     #scale_y_continuous(breaks = seq(0, 100, by = 20),
@@ -476,7 +476,7 @@ temp_power_cpu <- ggplot(df_list_hw[[df_name]], aes(seconds)) +
   
   labs(
     x = "Time (M:SS)", 
-    title = paste0("CPU Power and Temperature Over Time in ", df_name)
+    title = paste0("CPU Power and Temperature Over Time in ", toTitleCase(df_name))
   ) +
   
   scale_x_continuous(
@@ -539,7 +539,7 @@ temp_power_gpu <- ggplot(df_list_hw[[df_name]], aes(seconds)) +
   
   labs(
     x = "Time (M:SS)", 
-    title = paste0("GPU Power and Temperature Over Time in ", df_name)
+    title = paste0("GPU Power and Temperature Over Time in ", toTitleCase(df_name))
   ) +
   
   scale_x_continuous(
