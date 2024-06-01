@@ -101,7 +101,7 @@ rm(df_list)
 ```{r}
 #("gtav", "overwatch", "r6", "apex", "destiny", "rocket_league", "battlefront", "halo", "fortnite", "cod")
 
-game <- "overwatch"
+game <- "fortnite"
 ```
 
 
